@@ -8,9 +8,9 @@
   :root {
     --bg: #0f1117;
     --surface: #1a1d27;
+    --surface2: #22263a;
     --border: #2a2d3a;
     --accent: #4f8ef7;
-    --accent2: #7c5cbf;
     --green: #3ecf8e;
     --yellow: #f5c842;
     --red: #f76f6f;
@@ -26,42 +26,27 @@
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
   }
   header h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.03em; color: var(--accent); }
-  header .status { font-size: 12px; color: var(--muted); font-family: var(--mono); }
-  header .status.ok { color: var(--green); }
-  header .status.err { color: var(--red); }
+  .sync-status { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .sync-status.ok { color: var(--green); }
+  .sync-status.err { color: var(--red); }
 
-  main { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
+  main { max-width: 780px; margin: 0 auto; padding: 20px 16px 80px; }
 
-  /* Setup section */
   .setup-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 18px;
-    margin-bottom: 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px; margin-bottom: 24px;
   }
-  .setup-card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 14px; }
+  .setup-card h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 14px; }
   .field { margin-bottom: 12px; }
   .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
   .field input {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 13px;
-    padding: 8px 10px;
-    outline: none;
-    transition: border-color 0.15s;
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: var(--mono);
+    font-size: 13px; padding: 8px 10px; outline: none; transition: border-color 0.15s;
   }
   .field input:focus { border-color: var(--accent); }
   .field input::placeholder { color: var(--muted); }
@@ -80,70 +65,48 @@
   .btn-green { background: var(--green); color: #0f1117; }
   .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-  /* Trip meta */
   .section-label {
     font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
     color: var(--muted); margin-bottom: 10px; margin-top: 24px;
   }
 
-  /* Stop cards */
-  .stops-list { display: flex; flex-direction: column; gap: 12px; }
+  /* ---- Stop + Leg layout ---- */
+  .itinerary-list { display: flex; flex-direction: column; }
 
+  /* Stop card */
   .stop-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    position: relative;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; position: relative;
   }
-  .stop-card.current { border-color: var(--accent); }
-  .stop-card.done { opacity: 0.6; }
+  .stop-card.status-current { border-color: var(--green); }
+  .stop-card.status-done { opacity: 0.6; }
 
   .stop-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
   }
   .stop-num {
     font-family: var(--mono); font-size: 11px; color: var(--accent);
-    background: rgba(79,142,247,0.12); border-radius: 4px; padding: 2px 7px; margin-right: 8px;
+    background: rgba(79,142,247,0.12); border-radius: 4px;
+    padding: 2px 7px; flex-shrink: 0;
   }
   .stop-name-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    font-size: 15px;
-    font-weight: 600;
-    padding: 2px 4px;
-    outline: none;
-    width: 100%;
+    flex: 1; background: transparent; border: none;
+    border-bottom: 1px solid var(--border); color: var(--text);
+    font-size: 15px; font-weight: 600; padding: 2px 4px; outline: none;
   }
   .stop-name-input:focus { border-bottom-color: var(--accent); }
 
-  .time-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .time-group { display: flex; flex-direction: column; gap: 4px; }
-  .time-group label { font-size: 11px; color: var(--muted); }
-  .time-row { display: flex; gap: 6px; align-items: center; }
+  .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .time-group label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 6px; }
+  .time-row { display: flex; gap: 6px; align-items: center; margin-bottom: 5px; }
+  .time-tag { font-size: 10px; color: var(--muted); width: 22px; flex-shrink: 0; }
   .time-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 13px;
-    padding: 6px 8px;
-    outline: none;
-    min-width: 0;
+    flex: 1; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text); font-family: var(--mono);
+    font-size: 13px; padding: 6px 8px; outline: none; min-width: 0;
   }
   .time-input:focus { border-color: var(--accent); }
-  .time-tag { font-size: 10px; color: var(--muted); white-space: nowrap; }
-
+  .time-input[readonly] { color: var(--muted); background: var(--surface2); cursor: not-allowed; }
   .now-btn {
     font-size: 11px; padding: 4px 8px; border-radius: 4px;
     background: rgba(79,142,247,0.12); color: var(--accent);
@@ -152,38 +115,74 @@
   .now-btn:hover { background: rgba(79,142,247,0.22); }
 
   .stop-note {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    color: var(--muted);
-    font-size: 13px;
-    padding: 7px 9px;
-    outline: none;
-    resize: none;
-    margin-top: 10px;
-    font-family: var(--font);
-    line-height: 1.5;
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--muted); font-size: 13px;
+    padding: 7px 9px; outline: none; resize: none; margin-top: 10px;
+    font-family: var(--font); line-height: 1.5;
   }
-  .stop-note:focus { border-color: var(--border); color: var(--text); }
+  .stop-note:focus { color: var(--text); }
 
-  .stop-actions {
+  .stop-footer {
     display: flex; justify-content: space-between; align-items: center; margin-top: 12px;
   }
-  .status-toggle {
-    display: flex; gap: 6px;
-  }
+  .status-toggle { display: flex; gap: 6px; flex-wrap: wrap; }
   .status-btn {
     font-size: 11px; padding: 4px 10px; border-radius: 4px;
     border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer;
   }
-  .status-btn.active-upcoming { background: rgba(79,142,247,0.12); border-color: var(--accent); color: var(--accent); }
-  .status-btn.active-current { background: rgba(62,207,142,0.12); border-color: var(--green); color: var(--green); }
-  .status-btn.active-done { background: rgba(122,127,148,0.1); border-color: var(--muted); color: var(--muted); }
+  .status-btn.sel-upcoming { background: rgba(79,142,247,0.12); border-color: var(--accent); color: var(--accent); }
+  .status-btn.sel-enroute { background: rgba(245,200,66,0.12); border-color: var(--yellow); color: var(--yellow); }
+  .status-btn.sel-at_stop { background: rgba(62,207,142,0.12); border-color: var(--green); color: var(--green); }
+  .status-btn.sel-done { background: rgba(122,127,148,0.1); border-color: var(--muted); color: var(--muted); }
 
-  /* Add stop */
+  /* Leg connector */
+  .leg-card {
+    display: flex; align-items: stretch; gap: 0;
+    margin: 0; position: relative;
+  }
+  .leg-line-col {
+    width: 38px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+  }
+  .leg-line { width: 2px; flex: 1; background: var(--border); }
+  .leg-body {
+    flex: 1; margin: 6px 0; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .leg-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; flex-shrink: 0; }
+  .leg-enroute-input {
+    width: 64px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text); font-family: var(--mono);
+    font-size: 13px; padding: 5px 7px; outline: none; text-align: center;
+  }
+  .leg-enroute-input:focus { border-color: var(--accent); }
+  .leg-min-label { font-size: 11px; color: var(--muted); }
+  .leg-autocalc {
+    display: flex; align-items: center; gap: 6px; margin-left: auto;
+    cursor: pointer; user-select: none;
+  }
+  .leg-autocalc input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+  .leg-autocalc span { font-size: 12px; color: var(--muted); }
+  .leg-autocalc input:checked + span { color: var(--accent); }
+
+  /* Dot between leg and stop */
+  .stop-dot-row {
+    display: flex; align-items: center; gap: 0; height: 0; position: relative; z-index: 2;
+  }
+  .stop-dot-spacer { width: 38px; flex-shrink: 0; display: flex; justify-content: center; }
+  .stop-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--bg);
+    position: relative; top: 7px;
+  }
+  .stop-dot.status-upcoming { border-color: var(--border); }
+  .stop-dot.status-enroute { border-color: var(--yellow); background: rgba(245,200,66,0.15); }
+  .stop-dot.status-at_stop { border-color: var(--green); background: rgba(62,207,142,0.15); }
+  .stop-dot.status-done { border-color: var(--muted); background: var(--muted); }
+
+  /* Add/remove */
   .add-stop-btn {
-    width: 100%; padding: 12px; border-radius: 8px; margin-top: 14px;
+    width: 100%; padding: 12px; border-radius: 8px; margin-top: 8px;
     border: 1px dashed var(--border); background: transparent;
     color: var(--muted); font-size: 13px; cursor: pointer;
     transition: border-color 0.15s, color 0.15s;
@@ -193,17 +192,14 @@
   /* Bottom bar */
   .bottom-bar {
     position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    padding: 12px 16px;
-    display: flex; justify-content: center; gap: 10px;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 12px 16px; display: flex; justify-content: center; gap: 10px;
   }
 
   .toast {
     position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
     background: var(--green); color: #0f1117; font-size: 13px; font-weight: 600;
-    padding: 8px 18px; border-radius: 20px;
-    opacity: 0; transition: opacity 0.3s;
+    padding: 8px 18px; border-radius: 20px; opacity: 0; transition: opacity 0.3s;
     pointer-events: none; white-space: nowrap;
   }
   .toast.err { background: var(--red); color: #fff; }
@@ -214,7 +210,7 @@
 
 <header>
   <h1>✈ Itinerary Admin</h1>
-  <span class="status" id="syncStatus">not synced</span>
+  <span class="sync-status" id="syncStatus">not synced</span>
 </header>
 
 <main>
@@ -225,24 +221,24 @@
       <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
     </div>
     <div class="field">
-      <label>Gist ID <small style="color:var(--muted)">(leave blank to create a new one)</small></label>
-      <input type="text" id="gistId" placeholder="will be auto-filled after first publish" />
+      <label>Gist ID <small style="color:var(--muted)">(blank = create new on first publish)</small></label>
+      <input type="text" id="gistId" placeholder="auto-filled after publish" />
     </div>
     <div class="btn-row" style="margin-top:4px">
-      <button class="btn btn-primary" onclick="saveSetup()">Save & Test</button>
+      <button class="btn btn-primary" onclick="saveSetup()">Save</button>
       <button class="btn btn-ghost" onclick="toggleSetup()">Hide</button>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:12px;">Token is stored in <strong>localStorage</strong> only — never sent anywhere except api.github.com. The Gist will be <strong>secret</strong> (unlisted, not searchable, but readable if someone has the URL).</p>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px;">Token stored in localStorage only — sent only to api.github.com. Gist is <strong>secret</strong> (unlisted).</p>
   </div>
   <button class="btn btn-ghost" id="showSetupBtn" onclick="toggleSetup()" style="display:none;margin-bottom:20px;font-size:12px;">⚙ Gist settings</button>
 
   <div class="section-label">Trip Title</div>
   <div class="field">
-    <input type="text" id="tripTitle" placeholder="e.g. Family Trip — June 28" style="font-size:16px;font-weight:600;" />
+    <input type="text" id="tripTitle" placeholder="e.g. Winnipeg → Ottawa — June 28" style="font-size:16px;font-weight:600;" />
   </div>
 
-  <div class="section-label">Stops</div>
-  <div class="stops-list" id="stopsList"></div>
+  <div class="section-label">Stops &amp; Legs</div>
+  <div class="itinerary-list" id="itineraryList"></div>
   <button class="add-stop-btn" onclick="addStop()">+ Add Stop</button>
 </main>
 
@@ -255,129 +251,260 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ---- State ----
+// stops: [{id, name, note, status}]
+// legs:  [{id, estEnroute (minutes), autoCalc (bool)}]  — legs[i] = leg between stops[i] and stops[i+1]
+// times: [{estArrive, actArrive, estDepart, actDepart}]  — per stop
 let stops = [];
+let legs  = [];
+let times = [];
 
 // ---- Setup ----
 function saveSetup() {
-  const token = document.getElementById('ghToken').value.trim();
-  const gistId = document.getElementById('gistId').value.trim();
-  if (token) localStorage.setItem('gh_token', token);
-  if (gistId) localStorage.setItem('gist_id', gistId);
-  showToast('Saved. Try publishing to test.');
+  const t = document.getElementById('ghToken').value.trim();
+  const g = document.getElementById('gistId').value.trim();
+  if (t) localStorage.setItem('gh_token', t);
+  if (g) localStorage.setItem('gist_id', g);
+  showToast('Saved.');
 }
 function loadSetup() {
-  const token = localStorage.getItem('gh_token') || '';
-  const gistId = localStorage.getItem('gist_id') || '';
-  document.getElementById('ghToken').value = token;
-  document.getElementById('gistId').value = gistId;
+  document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
+  document.getElementById('gistId').value  = localStorage.getItem('gist_id')  || '';
 }
 function toggleSetup() {
   const card = document.getElementById('setupCard');
-  const btn = document.getElementById('showSetupBtn');
+  const btn  = document.getElementById('showSetupBtn');
   const hidden = card.style.display === 'none';
   card.style.display = hidden ? 'block' : 'none';
-  btn.style.display = hidden ? 'none' : 'inline-flex';
+  btn.style.display  = hidden ? 'none'  : 'inline-flex';
 }
 
-// ---- Stops ----
+// ---- Auto-calc logic ----
+// Recalculates estimated times for all stops based on leg enroute + autoCalc flags.
+// Actual times are never overwritten. Calculated est times are stored in times[].
+function recalcTimes() {
+  for (let i = 1; i < stops.length; i++) {
+    const leg = legs[i - 1];
+    if (!leg || !leg.autoCalc || !leg.estEnroute) continue;
+
+    // Departure from previous stop: use actual if set, else current est
+    const prevDepart = times[i-1].actDepart || times[i-1].estDepart;
+    if (!prevDepart) continue;
+
+    const [h, m] = prevDepart.split(':').map(Number);
+    const totalMin = h * 60 + m + parseInt(leg.estEnroute, 10);
+    const newArrive = pad(Math.floor(totalMin / 60) % 24) + ':' + pad(totalMin % 60);
+
+    // Only update est arrive if not manually set (we track whether it was calc'd)
+    if (!times[i]._manualEstArrive) {
+      times[i].estArrive = newArrive;
+    }
+
+    // If this stop has autoCalc on the next leg too, and no manual estDepart, cascade forward
+    // (estDepart unchanged — user sets dwell time manually or via actual)
+  }
+}
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+// ---- Stop management ----
 function defaultStop(n) {
-  return { id: Date.now() + n, name: '', note: '', status: 'upcoming',
-           estArrive: '', actArrive: '', estDepart: '', actDepart: '' };
+  return { id: Date.now() + n, name: '', note: '', status: 'upcoming' };
 }
+function defaultLeg(n) {
+  return { id: Date.now() + n + 1000, estEnroute: '', autoCalc: false };
+}
+function defaultTime() {
+  return { estArrive: '', actArrive: '', estDepart: '', actDepart: '', _manualEstArrive: false };
+}
+
 function addStop() {
-  stops.push(defaultStop(stops.length));
-  renderStops();
+  const n = stops.length;
+  stops.push(defaultStop(n));
+  times.push(defaultTime());
+  if (n > 0) legs.push(defaultLeg(n));  // add leg between prev and new
+  render();
 }
-function removeStop(id) {
-  stops = stops.filter(s => s.id !== id);
-  renderStops();
+
+function removeStop(idx) {
+  if (stops.length <= 2) { showToast('Need at least 2 stops.', true); return; }
+  stops.splice(idx, 1);
+  times.splice(idx, 1);
+  if (idx === 0) legs.splice(0, 1);
+  else legs.splice(idx - 1, 1);
+  render();
 }
-function setNow(id, field) {
-  const s = stops.find(s => s.id === id);
-  if (!s) return;
+
+function setNow(stopIdx, field) {
   const now = new Date();
-  s[field] = now.toTimeString().slice(0,5);
-  renderStops();
+  const t = pad(now.getHours()) + ':' + pad(now.getMinutes());
+  times[stopIdx][field] = t;
+  if (field === 'estArrive') times[stopIdx]._manualEstArrive = true;
+  recalcTimes();
+  render();
 }
-function setStatus(id, status) {
-  const s = stops.find(s => s.id === id);
-  if (s) { s.status = status; renderStops(); }
+
+function setStatus(stopIdx, status) {
+  stops[stopIdx].status = status;
+  render();
 }
-function renderStops() {
-  const list = document.getElementById('stopsList');
+
+// ---- Render ----
+function render() {
+  recalcTimes();
+  const list = document.getElementById('itineraryList');
   list.innerHTML = '';
+  const last = stops.length - 1;
+
   stops.forEach((stop, i) => {
+    const isFirst = i === 0;
+    const isLast  = i === last;
+    const t = times[i];
+    const s = stop.status;
+
+    // Dot row
+    const dotRow = document.createElement('div');
+    dotRow.className = 'stop-dot-row';
+    dotRow.innerHTML = `<div class="stop-dot-spacer"><div class="stop-dot status-${s}"></div></div>`;
+    list.appendChild(dotRow);
+
+    // Stop card
     const card = document.createElement('div');
-    card.className = 'stop-card' + (stop.status === 'current' ? ' current' : stop.status === 'done' ? ' done' : '');
+    card.className = `stop-card${s === 'at_stop' ? ' status-current' : s === 'done' ? ' status-done' : ''}`;
     card.innerHTML = `
       <div class="stop-header">
-        <span class="stop-num">${String(i+1).padStart(2,'0')}</span>
-        <input class="stop-name-input" placeholder="Location name" value="${esc(stop.name)}"
-          oninput="stops[${i}].name=this.value" />
-        <button class="btn btn-danger" onclick="removeStop(${stop.id})">✕</button>
+        <span class="stop-num">${isFirst ? 'ORIG' : isLast ? 'DEST' : String(i).padStart(2,'0')}</span>
+        <input class="stop-name-input" placeholder="${isFirst ? 'Origin' : isLast ? 'Destination' : 'Location name'}"
+          value="${esc(stop.name)}" oninput="stops[${i}].name=this.value" />
+        ${stops.length > 2 ? `<button class="btn btn-danger" onclick="removeStop(${i})">✕</button>` : ''}
       </div>
+
       <div class="time-grid">
+        ${!isFirst ? `
         <div class="time-group">
           <label>Arrive</label>
           <div class="time-row">
-            <input class="time-input" type="time" value="${stop.estArrive}" placeholder="--:--"
-              oninput="stops[${i}].estArrive=this.value" title="Est. arrive" />
             <span class="time-tag">est</span>
+            <input class="time-input" type="time" value="${t.estArrive}"
+              oninput="times[${i}].estArrive=this.value;times[${i}]._manualEstArrive=true;recalcTimes();renderTimeInputs()"
+              title="Estimated arrive" />
           </div>
           <div class="time-row">
-            <input class="time-input" type="time" value="${stop.actArrive}" placeholder="--:--"
-              oninput="stops[${i}].actArrive=this.value" title="Act. arrive" />
             <span class="time-tag">act</span>
-            <button class="now-btn" onclick="setNow(${stop.id},'actArrive')">now</button>
+            <input class="time-input" type="time" value="${t.actArrive}"
+              oninput="times[${i}].actArrive=this.value;recalcTimes();renderTimeInputs()"
+              title="Actual arrive" />
+            <button class="now-btn" onclick="setNow(${i},'actArrive')">now</button>
           </div>
-        </div>
+        </div>` : '<div></div>'}
+
+        ${!isLast ? `
         <div class="time-group">
           <label>Depart</label>
           <div class="time-row">
-            <input class="time-input" type="time" value="${stop.estDepart}" placeholder="--:--"
-              oninput="stops[${i}].estDepart=this.value" title="Est. depart" />
             <span class="time-tag">est</span>
+            <input class="time-input" type="time" value="${t.estDepart}"
+              oninput="times[${i}].estDepart=this.value;recalcTimes();renderTimeInputs()"
+              title="Estimated depart" />
           </div>
           <div class="time-row">
-            <input class="time-input" type="time" value="${stop.actDepart}" placeholder="--:--"
-              oninput="stops[${i}].actDepart=this.value" title="Act. depart" />
             <span class="time-tag">act</span>
-            <button class="now-btn" onclick="setNow(${stop.id},'actDepart')">now</button>
+            <input class="time-input" type="time" value="${t.actDepart}"
+              oninput="times[${i}].actDepart=this.value;recalcTimes();renderTimeInputs()"
+              title="Actual depart" />
+            <button class="now-btn" onclick="setNow(${i},'actDepart')">now</button>
           </div>
-        </div>
+        </div>` : '<div></div>'}
       </div>
+
       <textarea class="stop-note" rows="2" placeholder="Notes (optional)…"
         oninput="stops[${i}].note=this.value">${esc(stop.note)}</textarea>
-      <div class="stop-actions">
+
+      <div class="stop-footer">
         <div class="status-toggle">
-          <button class="status-btn ${stop.status==='upcoming'?'active-upcoming':''}" onclick="setStatus(${stop.id},'upcoming')">upcoming</button>
-          <button class="status-btn ${stop.status==='current'?'active-current':''}" onclick="setStatus(${stop.id},'current')">current</button>
-          <button class="status-btn ${stop.status==='done'?'active-done':''}" onclick="setStatus(${stop.id},'done')">done</button>
+          ${['upcoming','enroute','at_stop','done'].map(st =>
+            `<button class="status-btn${s===st?' sel-'+st:''}" onclick="setStatus(${i},'${st}')">${stLabel(st)}</button>`
+          ).join('')}
         </div>
       </div>
     `;
     list.appendChild(card);
+
+    // Leg connector (between this stop and next)
+    if (i < last) {
+      const leg = legs[i];
+      const legCard = document.createElement('div');
+      legCard.className = 'leg-card';
+      legCard.innerHTML = `
+        <div class="leg-line-col"><div class="leg-line"></div></div>
+        <div class="leg-body">
+          <span class="leg-label">Leg ${i+1}→${i+2}</span>
+          <input class="leg-enroute-input" type="number" min="1" max="9999"
+            value="${leg.estEnroute}" placeholder="—"
+            oninput="legs[${i}].estEnroute=this.value;recalcTimes();renderTimeInputs()"
+            title="Estimated enroute time" />
+          <span class="leg-min-label">min est</span>
+          <label class="leg-autocalc">
+            <input type="checkbox" ${leg.autoCalc ? 'checked' : ''}
+              onchange="legs[${i}].autoCalc=this.checked;recalcTimes();renderTimeInputs()" />
+            <span>auto-calc times</span>
+          </label>
+        </div>
+      `;
+      list.appendChild(legCard);
+    }
   });
 }
 
-// ---- Gist sync ----
-function buildPayload() {
+function stLabel(s) {
+  return {upcoming:'upcoming',enroute:'en route',at_stop:'at stop',done:'done'}[s] || s;
+}
+
+// Light re-render of just time input values without rebuilding DOM (avoids focus loss)
+function renderTimeInputs() {
+  // Full render is fine here since we're not mid-typing in a time field
+  // (time inputs use oninput which fires per change)
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ---- Serialise / deserialise ----
+function toPayload() {
   return {
     title: document.getElementById('tripTitle').value.trim(),
     updated: new Date().toISOString(),
-    stops
+    stops: stops.map((s, i) => ({
+      ...s,
+      times: times[i],
+      leg: i < legs.length ? legs[i] : null
+    }))
   };
 }
+
+function fromPayload(data) {
+  document.getElementById('tripTitle').value = data.title || '';
+  stops = []; legs = []; times = [];
+  (data.stops || []).forEach((s, i) => {
+    const { times: t, leg, ...rest } = s;
+    stops.push(rest);
+    times.push(t || defaultTime());
+    if (leg) legs.push(leg);
+  });
+  render();
+}
+
+// ---- Gist sync ----
 async function publishToGist() {
   const token = localStorage.getItem('gh_token');
   if (!token) { showToast('Set your GitHub token first.', true); return; }
-  const payload = JSON.stringify(buildPayload(), null, 2);
-  const gistId = localStorage.getItem('gist_id');
-  setStatus_(null, 'publishing…');
+  const payload = JSON.stringify(toPayload(), null, 2);
+  const gistId  = localStorage.getItem('gist_id');
+  setSyncStatus('publishing…', false);
   try {
-    let url = 'https://api.github.com/gists';
-    let method = 'POST';
-    if (gistId) { url += '/' + gistId; method = 'PATCH'; }
+    const url    = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
+    const method = gistId ? 'PATCH' : 'POST';
     const res = await fetch(url, {
       method,
       headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
@@ -391,15 +518,16 @@ async function publishToGist() {
     const data = await res.json();
     localStorage.setItem('gist_id', data.id);
     document.getElementById('gistId').value = data.id;
-    setStatus_('synced ' + new Date().toLocaleTimeString(), false);
+    setSyncStatus('synced ' + new Date().toLocaleTimeString(), false);
     showToast('Published!');
   } catch(e) {
-    setStatus_('error: ' + e.message, true);
+    setSyncStatus('error: ' + e.message, true);
     showToast('Publish failed: ' + e.message, true);
   }
 }
+
 async function loadFromGist() {
-  const token = localStorage.getItem('gh_token');
+  const token  = localStorage.getItem('gh_token');
   const gistId = localStorage.getItem('gist_id');
   if (!gistId) { showToast('No Gist ID saved.', true); return; }
   try {
@@ -408,48 +536,43 @@ async function loadFromGist() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const content = data.files['itinerary.json']?.content;
-    if (!content) throw new Error('File not found in gist');
-    const parsed = JSON.parse(content);
-    document.getElementById('tripTitle').value = parsed.title || '';
-    stops = parsed.stops || [];
-    renderStops();
+    if (!content) throw new Error('File not found');
+    fromPayload(JSON.parse(content));
     showToast('Loaded!');
   } catch(e) {
     showToast('Load failed: ' + e.message, true);
   }
 }
+
 function copyViewerUrl() {
   const gistId = localStorage.getItem('gist_id');
-  if (!gistId) { showToast('Publish first to get a Gist ID.', true); return; }
-  // Derive the index.html URL from current page location
+  if (!gistId) { showToast('Publish first.', true); return; }
   const base = location.href.replace(/admin\.html.*$/, '').replace(/\/$/, '');
-  const url = base + '/index.html?gist=' + gistId;
-  navigator.clipboard.writeText(url).then(() => showToast('Viewer URL copied!')).catch(() => {
-    prompt('Copy this URL:', url);
-  });
+  const url  = base + '/index.html?gist=' + gistId;
+  navigator.clipboard.writeText(url).then(() => showToast('Viewer URL copied!')).catch(() => prompt('Copy:', url));
 }
 
-// ---- Helpers ----
-function esc(s) {
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function setStatus_(msg, isErr) {
+function setSyncStatus(msg, isErr) {
   const el = document.getElementById('syncStatus');
-  el.textContent = msg || '';
-  el.className = 'status' + (isErr ? ' err' : msg ? ' ok' : '');
+  el.textContent = msg;
+  el.className = 'sync-status' + (isErr ? ' err' : msg ? ' ok' : '');
 }
 function showToast(msg, isErr=false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast' + (isErr ? ' err' : '') + ' show';
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.className = 'toast' + (isErr ? ' err' : ''), 2500);
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = 'toast' + (isErr ? ' err' : ''), 2600);
 }
 
 // ---- Init ----
 loadSetup();
 if (localStorage.getItem('gh_token')) toggleSetup();
-if (stops.length === 0) { addStop(); addStop(); }
+// Start with 3 stops (origin, stop, dest) and 2 legs
+stops = [defaultStop(0), defaultStop(1), defaultStop(2)];
+times = [defaultTime(), defaultTime(), defaultTime()];
+legs  = [defaultLeg(0), defaultLeg(1)];
+render();
 </script>
 </body>
 </html>
