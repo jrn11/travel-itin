@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itinerary</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2a2d3a;
+    --accent: #4f8ef7;
+    --green: #3ecf8e;
+    --yellow: #f5c842;
+    --red: #f76f6f;
+    --muted: #7a7f94;
+    --text: #e8eaf0;
+    --font: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+  header {
+    padding: 20px 20px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .trip-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; }
+  .trip-title { font-size: 22px; font-weight: 700; }
+  .updated { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 6px; }
+
+  /* Timeline */
+  main { max-width: 600px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .timeline { position: relative; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 24px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .stop {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .dot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 38px;
+    padding-top: 4px;
+    z-index: 1;
+  }
+  .dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2.5px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+    transition: border-color 0.3s;
+  }
+  .dot.upcoming { border-color: var(--border); background: var(--bg); }
+  .dot.current {
+    border-color: var(--green);
+    background: rgba(62,207,142,0.15);
+    box-shadow: 0 0 10px rgba(62,207,142,0.4);
+    animation: pulse 2s infinite;
+  }
+  .dot.done { border-color: var(--muted); background: var(--muted); }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(62,207,142,0.3); }
+    50% { box-shadow: 0 0 14px rgba(62,207,142,0.7); }
+  }
+
+  .stop-body {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    transition: border-color 0.3s;
+  }
+  .stop-body.current { border-color: var(--green); }
+  .stop-body.done { opacity: 0.55; }
+
+  .stop-top {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .stop-name { font-size: 16px; font-weight: 600; }
+  .stop-badge {
+    font-size: 10px; font-family: var(--mono); padding: 2px 8px; border-radius: 10px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .badge-upcoming { background: rgba(79,142,247,0.12); color: var(--accent); }
+  .badge-current { background: rgba(62,207,142,0.12); color: var(--green); }
+  .badge-done { background: rgba(122,127,148,0.1); color: var(--muted); }
+
+  .times-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .time-block { }
+  .time-block-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .time-pair { display: flex; gap: 8px; align-items: baseline; }
+  .time-val {
+    font-family: var(--mono); font-size: 15px; font-weight: 600;
+  }
+  .time-val.est { color: var(--muted); }
+  .time-val.act { color: var(--text); }
+  .time-val.late { color: var(--red); }
+  .time-val.early { color: var(--green); }
+  .time-sep { font-size: 11px; color: var(--border); }
+  .time-val.empty { color: var(--border); }
+
+  .delta-tag {
+    font-size: 10px; font-family: var(--mono);
+    padding: 1px 5px; border-radius: 3px; margin-left: 4px;
+  }
+  .delta-late { background: rgba(247,111,111,0.15); color: var(--red); }
+  .delta-early { background: rgba(62,207,142,0.15); color: var(--green); }
+
+  .note { font-size: 13px; color: var(--muted); margin-top: 10px; font-style: italic; border-top: 1px solid var(--border); padding-top: 8px; }
+
+  /* Refresh bar */
+  .refresh-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; font-size: 12px; color: var(--muted);
+  }
+  .refresh-bar .live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+    display: inline-block; margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+  .refresh-btn {
+    font-size: 12px; background: transparent; border: 1px solid var(--border);
+    color: var(--muted); border-radius: 5px; padding: 4px 10px; cursor: pointer;
+  }
+  .refresh-btn:hover { color: var(--text); }
+
+  /* Error / loading */
+  .center-msg { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+  .spinner { display: inline-block; width: 22px; height: 22px; border: 2.5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .no-gist-setup {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 24px; text-align: center; color: var(--muted); font-size: 14px;
+    line-height: 1.7; margin-top: 40px;
+  }
+  .no-gist-setup strong { color: var(--text); }
+  code { font-family: var(--mono); background: var(--surface2); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="center-msg"><div class="spinner"></div><br>Loading itinerary…</div>
+</div>
+
+<div class="refresh-bar">
+  <span><span class="live-dot"></span>auto-refresh every 30s</span>
+  <span id="lastRefresh" style="color:var(--muted)"></span>
+  <button class="refresh-btn" onclick="load()">↻ Refresh now</button>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const gistId = params.get('gist');
+
+function fmt(t) {
+  if (!t) return '<span class="time-val empty">--:--</span>';
+  return `<span class="time-val act">${t}</span>`;
+}
+function fmtEst(t) {
+  if (!t) return '<span class="time-val empty">--:--</span>';
+  return `<span class="time-val est">${t}</span>`;
+}
+function deltaTag(est, act) {
+  if (!est || !act) return '';
+  const [eh,em] = est.split(':').map(Number);
+  const [ah,am] = act.split(':').map(Number);
+  const diff = (ah*60+am) - (eh*60+em);
+  if (diff === 0) return '';
+  const abs = Math.abs(diff);
+  const label = (diff > 0 ? '+' : '-') + abs + 'm';
+  return diff > 0
+    ? `<span class="delta-tag delta-late">${label}</span>`
+    : `<span class="delta-tag delta-early">${label}</span>`;
+}
+
+function renderItinerary(data) {
+  const stops = data.stops || [];
+  const title = data.title || 'Itinerary';
+  const updated = data.updated ? new Date(data.updated).toLocaleTimeString() : '';
+
+  let stopsHtml = stops.map((stop, i) => {
+    const status = stop.status || 'upcoming';
+    const badgeClass = `badge-${status}`;
+    const badgeLabel = status === 'current' ? '◉ current' : status === 'done' ? '✓ done' : 'upcoming';
+    const noteHtml = stop.note ? `<div class="note">${esc(stop.note)}</div>` : '';
+    return `
+      <div class="stop">
+        <div class="dot-col">
+          <div class="dot ${status}"></div>
+        </div>
+        <div class="stop-body ${status}">
+          <div class="stop-top">
+            <span class="stop-name">${esc(stop.name || 'Stop ' + (i+1))}</span>
+            <span class="stop-badge ${badgeClass}">${badgeLabel}</span>
+          </div>
+          <div class="times-row">
+            <div class="time-block">
+              <div class="time-block-label">Arrive</div>
+              <div class="time-pair">
+                ${fmtEst(stop.estArrive)}
+                ${stop.actArrive ? `<span class="time-sep">→</span>${fmt(stop.actArrive)}${deltaTag(stop.estArrive, stop.actArrive)}` : ''}
+              </div>
+            </div>
+            <div class="time-block">
+              <div class="time-block-label">Depart</div>
+              <div class="time-pair">
+                ${fmtEst(stop.estDepart)}
+                ${stop.actDepart ? `<span class="time-sep">→</span>${fmt(stop.actDepart)}${deltaTag(stop.estDepart, stop.actDepart)}` : ''}
+              </div>
+            </div>
+          </div>
+          ${noteHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('app').innerHTML = `
+    <header>
+      <div class="trip-label">Live Itinerary</div>
+      <div class="trip-title">${esc(title)}</div>
+      <div class="updated">Last updated ${updated}</div>
+    </header>
+    <main>
+      <div class="timeline">${stopsHtml || '<p style="color:var(--muted);padding:20px 0">No stops yet.</p>'}</div>
+    </main>
+  `;
+  document.getElementById('lastRefresh').textContent = 'refreshed ' + new Date().toLocaleTimeString();
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+async function load() {
+  if (!gistId) {
+    document.getElementById('app').innerHTML = `
+      <div style="padding:20px">
+      <div class="no-gist-setup">
+        <strong>No itinerary linked.</strong><br><br>
+        Open <code>admin.html</code>, build your itinerary, publish it,<br>
+        then use <strong>Copy Viewer URL</strong> to get a shareable link.<br><br>
+        The URL will look like:<br>
+        <code>index.html?gist=YOUR_GIST_ID</code>
+      </div>
+      </div>`;
+    return;
+  }
+  try {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const content = data.files?.['itinerary.json']?.content;
+    if (!content) throw new Error('itinerary.json not found in gist');
+    renderItinerary(JSON.parse(content));
+  } catch(e) {
+    document.getElementById('app').innerHTML = `<div class="center-msg">Failed to load itinerary.<br><small>${e.message}</small></div>`;
+    document.getElementById('lastRefresh').textContent = 'error';
+  }
+}
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

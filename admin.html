@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itinerary — Admin</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #3ecf8e;
+    --yellow: #f5c842;
+    --red: #f76f6f;
+    --text: #e8eaf0;
+    --muted: #7a7f94;
+    --font: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; min-height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.03em; color: var(--accent); }
+  header .status { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  header .status.ok { color: var(--green); }
+  header .status.err { color: var(--red); }
+
+  main { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  /* Setup section */
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+  .setup-card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 14px; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--muted); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+    border: none; cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .btn-danger { background: transparent; color: var(--red); border: 1px solid transparent; padding: 4px 8px; font-size: 12px; }
+  .btn-danger:hover { border-color: var(--red); }
+  .btn-green { background: var(--green); color: #0f1117; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Trip meta */
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); margin-bottom: 10px; margin-top: 24px;
+  }
+
+  /* Stop cards */
+  .stops-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .stop-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+  }
+  .stop-card.current { border-color: var(--accent); }
+  .stop-card.done { opacity: 0.6; }
+
+  .stop-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .stop-num {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    background: rgba(79,142,247,0.12); border-radius: 4px; padding: 2px 7px; margin-right: 8px;
+  }
+  .stop-name-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 2px 4px;
+    outline: none;
+    width: 100%;
+  }
+  .stop-name-input:focus { border-bottom-color: var(--accent); }
+
+  .time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .time-group { display: flex; flex-direction: column; gap: 4px; }
+  .time-group label { font-size: 11px; color: var(--muted); }
+  .time-row { display: flex; gap: 6px; align-items: center; }
+  .time-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 6px 8px;
+    outline: none;
+    min-width: 0;
+  }
+  .time-input:focus { border-color: var(--accent); }
+  .time-tag { font-size: 10px; color: var(--muted); white-space: nowrap; }
+
+  .now-btn {
+    font-size: 11px; padding: 4px 8px; border-radius: 4px;
+    background: rgba(79,142,247,0.12); color: var(--accent);
+    border: none; cursor: pointer; font-family: var(--mono); white-space: nowrap;
+  }
+  .now-btn:hover { background: rgba(79,142,247,0.22); }
+
+  .stop-note {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 7px 9px;
+    outline: none;
+    resize: none;
+    margin-top: 10px;
+    font-family: var(--font);
+    line-height: 1.5;
+  }
+  .stop-note:focus { border-color: var(--border); color: var(--text); }
+
+  .stop-actions {
+    display: flex; justify-content: space-between; align-items: center; margin-top: 12px;
+  }
+  .status-toggle {
+    display: flex; gap: 6px;
+  }
+  .status-btn {
+    font-size: 11px; padding: 4px 10px; border-radius: 4px;
+    border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer;
+  }
+  .status-btn.active-upcoming { background: rgba(79,142,247,0.12); border-color: var(--accent); color: var(--accent); }
+  .status-btn.active-current { background: rgba(62,207,142,0.12); border-color: var(--green); color: var(--green); }
+  .status-btn.active-done { background: rgba(122,127,148,0.1); border-color: var(--muted); color: var(--muted); }
+
+  /* Add stop */
+  .add-stop-btn {
+    width: 100%; padding: 12px; border-radius: 8px; margin-top: 14px;
+    border: 1px dashed var(--border); background: transparent;
+    color: var(--muted); font-size: 13px; cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .add-stop-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex; justify-content: center; gap: 10px;
+  }
+
+  .toast {
+    position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+    background: var(--green); color: #0f1117; font-size: 13px; font-weight: 600;
+    padding: 8px 18px; border-radius: 20px;
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none; white-space: nowrap;
+  }
+  .toast.err { background: var(--red); color: #fff; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>✈ Itinerary Admin</h1>
+  <span class="status" id="syncStatus">not synced</span>
+</header>
+
+<main>
+  <div class="setup-card" id="setupCard">
+    <h2>GitHub Gist Setup</h2>
+    <div class="field">
+      <label>GitHub Personal Access Token (gist scope)</label>
+      <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+    </div>
+    <div class="field">
+      <label>Gist ID <small style="color:var(--muted)">(leave blank to create a new one)</small></label>
+      <input type="text" id="gistId" placeholder="will be auto-filled after first publish" />
+    </div>
+    <div class="btn-row" style="margin-top:4px">
+      <button class="btn btn-primary" onclick="saveSetup()">Save & Test</button>
+      <button class="btn btn-ghost" onclick="toggleSetup()">Hide</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px;">Token is stored in <strong>localStorage</strong> only — never sent anywhere except api.github.com. The Gist will be <strong>secret</strong> (unlisted, not searchable, but readable if someone has the URL).</p>
+  </div>
+  <button class="btn btn-ghost" id="showSetupBtn" onclick="toggleSetup()" style="display:none;margin-bottom:20px;font-size:12px;">⚙ Gist settings</button>
+
+  <div class="section-label">Trip Title</div>
+  <div class="field">
+    <input type="text" id="tripTitle" placeholder="e.g. Family Trip — June 28" style="font-size:16px;font-weight:600;" />
+  </div>
+
+  <div class="section-label">Stops</div>
+  <div class="stops-list" id="stopsList"></div>
+  <button class="add-stop-btn" onclick="addStop()">+ Add Stop</button>
+</main>
+
+<div class="bottom-bar">
+  <button class="btn btn-ghost" onclick="loadFromGist()">↓ Load</button>
+  <button class="btn btn-primary" onclick="publishToGist()">↑ Publish</button>
+  <button class="btn btn-green" onclick="copyViewerUrl()">🔗 Copy Viewer URL</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let stops = [];
+
+// ---- Setup ----
+function saveSetup() {
+  const token = document.getElementById('ghToken').value.trim();
+  const gistId = document.getElementById('gistId').value.trim();
+  if (token) localStorage.setItem('gh_token', token);
+  if (gistId) localStorage.setItem('gist_id', gistId);
+  showToast('Saved. Try publishing to test.');
+}
+function loadSetup() {
+  const token = localStorage.getItem('gh_token') || '';
+  const gistId = localStorage.getItem('gist_id') || '';
+  document.getElementById('ghToken').value = token;
+  document.getElementById('gistId').value = gistId;
+}
+function toggleSetup() {
+  const card = document.getElementById('setupCard');
+  const btn = document.getElementById('showSetupBtn');
+  const hidden = card.style.display === 'none';
+  card.style.display = hidden ? 'block' : 'none';
+  btn.style.display = hidden ? 'none' : 'inline-flex';
+}
+
+// ---- Stops ----
+function defaultStop(n) {
+  return { id: Date.now() + n, name: '', note: '', status: 'upcoming',
+           estArrive: '', actArrive: '', estDepart: '', actDepart: '' };
+}
+function addStop() {
+  stops.push(defaultStop(stops.length));
+  renderStops();
+}
+function removeStop(id) {
+  stops = stops.filter(s => s.id !== id);
+  renderStops();
+}
+function setNow(id, field) {
+  const s = stops.find(s => s.id === id);
+  if (!s) return;
+  const now = new Date();
+  s[field] = now.toTimeString().slice(0,5);
+  renderStops();
+}
+function setStatus(id, status) {
+  const s = stops.find(s => s.id === id);
+  if (s) { s.status = status; renderStops(); }
+}
+function renderStops() {
+  const list = document.getElementById('stopsList');
+  list.innerHTML = '';
+  stops.forEach((stop, i) => {
+    const card = document.createElement('div');
+    card.className = 'stop-card' + (stop.status === 'current' ? ' current' : stop.status === 'done' ? ' done' : '');
+    card.innerHTML = `
+      <div class="stop-header">
+        <span class="stop-num">${String(i+1).padStart(2,'0')}</span>
+        <input class="stop-name-input" placeholder="Location name" value="${esc(stop.name)}"
+          oninput="stops[${i}].name=this.value" />
+        <button class="btn btn-danger" onclick="removeStop(${stop.id})">✕</button>
+      </div>
+      <div class="time-grid">
+        <div class="time-group">
+          <label>Arrive</label>
+          <div class="time-row">
+            <input class="time-input" type="time" value="${stop.estArrive}" placeholder="--:--"
+              oninput="stops[${i}].estArrive=this.value" title="Est. arrive" />
+            <span class="time-tag">est</span>
+          </div>
+          <div class="time-row">
+            <input class="time-input" type="time" value="${stop.actArrive}" placeholder="--:--"
+              oninput="stops[${i}].actArrive=this.value" title="Act. arrive" />
+            <span class="time-tag">act</span>
+            <button class="now-btn" onclick="setNow(${stop.id},'actArrive')">now</button>
+          </div>
+        </div>
+        <div class="time-group">
+          <label>Depart</label>
+          <div class="time-row">
+            <input class="time-input" type="time" value="${stop.estDepart}" placeholder="--:--"
+              oninput="stops[${i}].estDepart=this.value" title="Est. depart" />
+            <span class="time-tag">est</span>
+          </div>
+          <div class="time-row">
+            <input class="time-input" type="time" value="${stop.actDepart}" placeholder="--:--"
+              oninput="stops[${i}].actDepart=this.value" title="Act. depart" />
+            <span class="time-tag">act</span>
+            <button class="now-btn" onclick="setNow(${stop.id},'actDepart')">now</button>
+          </div>
+        </div>
+      </div>
+      <textarea class="stop-note" rows="2" placeholder="Notes (optional)…"
+        oninput="stops[${i}].note=this.value">${esc(stop.note)}</textarea>
+      <div class="stop-actions">
+        <div class="status-toggle">
+          <button class="status-btn ${stop.status==='upcoming'?'active-upcoming':''}" onclick="setStatus(${stop.id},'upcoming')">upcoming</button>
+          <button class="status-btn ${stop.status==='current'?'active-current':''}" onclick="setStatus(${stop.id},'current')">current</button>
+          <button class="status-btn ${stop.status==='done'?'active-done':''}" onclick="setStatus(${stop.id},'done')">done</button>
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+// ---- Gist sync ----
+function buildPayload() {
+  return {
+    title: document.getElementById('tripTitle').value.trim(),
+    updated: new Date().toISOString(),
+    stops
+  };
+}
+async function publishToGist() {
+  const token = localStorage.getItem('gh_token');
+  if (!token) { showToast('Set your GitHub token first.', true); return; }
+  const payload = JSON.stringify(buildPayload(), null, 2);
+  const gistId = localStorage.getItem('gist_id');
+  setStatus_(null, 'publishing…');
+  try {
+    let url = 'https://api.github.com/gists';
+    let method = 'POST';
+    if (gistId) { url += '/' + gistId; method = 'PATCH'; }
+    const res = await fetch(url, {
+      method,
+      headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        description: 'itinerary-tracker',
+        public: false,
+        files: { 'itinerary.json': { content: payload } }
+      })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    localStorage.setItem('gist_id', data.id);
+    document.getElementById('gistId').value = data.id;
+    setStatus_('synced ' + new Date().toLocaleTimeString(), false);
+    showToast('Published!');
+  } catch(e) {
+    setStatus_('error: ' + e.message, true);
+    showToast('Publish failed: ' + e.message, true);
+  }
+}
+async function loadFromGist() {
+  const token = localStorage.getItem('gh_token');
+  const gistId = localStorage.getItem('gist_id');
+  if (!gistId) { showToast('No Gist ID saved.', true); return; }
+  try {
+    const headers = token ? { 'Authorization': 'token ' + token } : {};
+    const res = await fetch('https://api.github.com/gists/' + gistId, { headers });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const content = data.files['itinerary.json']?.content;
+    if (!content) throw new Error('File not found in gist');
+    const parsed = JSON.parse(content);
+    document.getElementById('tripTitle').value = parsed.title || '';
+    stops = parsed.stops || [];
+    renderStops();
+    showToast('Loaded!');
+  } catch(e) {
+    showToast('Load failed: ' + e.message, true);
+  }
+}
+function copyViewerUrl() {
+  const gistId = localStorage.getItem('gist_id');
+  if (!gistId) { showToast('Publish first to get a Gist ID.', true); return; }
+  // Derive the index.html URL from current page location
+  const base = location.href.replace(/admin\.html.*$/, '').replace(/\/$/, '');
+  const url = base + '/index.html?gist=' + gistId;
+  navigator.clipboard.writeText(url).then(() => showToast('Viewer URL copied!')).catch(() => {
+    prompt('Copy this URL:', url);
+  });
+}
+
+// ---- Helpers ----
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function setStatus_(msg, isErr) {
+  const el = document.getElementById('syncStatus');
+  el.textContent = msg || '';
+  el.className = 'status' + (isErr ? ' err' : msg ? ' ok' : '');
+}
+function showToast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr ? ' err' : '') + ' show';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.className = 'toast' + (isErr ? ' err' : ''), 2500);
+}
+
+// ---- Init ----
+loadSetup();
+if (localStorage.getItem('gh_token')) toggleSetup();
+if (stops.length === 0) { addStop(); addStop(); }
+</script>
+</body>
+</html>
